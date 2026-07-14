@@ -21,11 +21,12 @@ async function main() {
     const size = await client.scard('fruits');
     console.log('Number of fruits in the set:', size);
 
-    await client.srem('fruits', 'appple');
+    await client.srem('fruits', 'apple');
     
     const afterRemove = await client.smembers('fruits');
     console.log('Fruits in the set after removing apple:', afterRemove);
     
+    //spop은 Set 안에 있는 값을 삭제하고 랜덤하게 꺼내서 보여줘 ('fruits)
     const poppedFruit = await client.spop('fruits');
     console.log('Popped fruit from the set:', poppedFruit);
 
@@ -47,6 +48,15 @@ async function main() {
     await client.sadd('post:1:likes', 'user1', 'user2', 'user3');
     //Set + Cardinality  Cardinality는 “원소가 몇 개 있는가”
     const likesCount = await client.scard('post:1:likes');
+    console.log('Number of likes for post 1:', likesCount);
+
+    // ui 사용자에게 좋아요 누루면 파란색 아니면 빨간색으로 표시할 수 있게 해준다
+    const hasUser2Liked = await client.sismember('post:1:likes', 'user2');
+    console.log('Has user2 liked post 1?', hasUser2Liked === 1 ? 'Yes' : 'No');
+
+    await client.srem('post:1:likes', 'user2');
+    const likesCountAfterUnlike = await client.scard('post:1:likes');
+    console.log('Number of likes for post 1 after user2 unliked:', likesCountAfterUnlike);
    } finally {
       await disconnectRedisClient(client);
    }
